@@ -1,6 +1,5 @@
 import { test as base } from '@playwright/test';
-import AdminBookingPage from '../../lib/pages/home-page';
-import NetworkPage from '../../lib/pages/network-page';
+import AdminBookingPage from '../../lib/pages/admin-booking-page';
 
 type PageObjects = {
   adminBookingPage: AdminBookingPage;

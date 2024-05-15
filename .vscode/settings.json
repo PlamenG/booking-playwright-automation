@@ -1,0 +1,21 @@
+{
+    "playwright.workspaceSettings": {
+        "configs": [
+            {
+                "relativeConfigFile": "playwright.config.js",
+                "selected": true,
+                "enabled": true,
+                "projects": [
+                    {
+                        "name": "setup",
+                        "enabled": true
+                    },
+                    {
+                        "name": "chromium",
+                        "enabled": true
+                    }
+                ]
+            }
+        ]
+    }
+}
