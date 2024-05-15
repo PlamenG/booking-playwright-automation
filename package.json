@@ -1,0 +1,26 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "e2e-automation",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test --project=chromium  --trace on && npx allure generate allure-results",
+    "report": "npx allure serve allure-results"
+  },
+  "repository": {
+    "type": "git",
+    "url": "e2e-automation"
+  },
+  "author": "Plamen Gospodinov",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.43.1",
+    "@types/node": "^20.12.7",
+    "allure-commandline": "^2.29.0",
+    "allure-playwright": "^2.15.1",
+    "playwright": "^1.40.0"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  }
+}
