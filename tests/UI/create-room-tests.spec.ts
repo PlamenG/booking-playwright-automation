@@ -10,19 +10,30 @@ test.describe('HomePage Tests', () => {
     const getRooms = await request.get(roomEnpoint)
     expect(getRooms.ok(), `Status code is: ${await getRooms.status()}`).toBeTruthy();
     
-    const rooms: [Room] = await getRooms.json();
-    for (let index = 0; index < rooms.length; index++) {
-      const room = rooms[index];
-      const deleteRoom = await request.post(`${roomEnpoint}/${room.roomid}`)      
+    const rooms = (await getRooms.json()).rooms as Room[];
+    rooms.forEach(async (room) => {
+      const deleteRoom = await request.delete(`${roomEnpoint}/${room.roomid}`)      
       expect(deleteRoom.ok(), `Status code is: ${await deleteRoom.status()}`).toBeTruthy();
-    }
+    })
+    
+    const checkRooms = await request.get(roomEnpoint);
+    const roomOnBackend = (await checkRooms.json()).rooms as [Room];
+    expect(checkRooms.ok(), `Status code is: ${await checkRooms.status()}`).toBeTruthy();
+    expect(roomOnBackend.length).toBe(0)
     await adminBookingPage.navigate();
   });
 
   test("Crerate new room", async ({adminBookingPage}) => {
+    const roomName = 'first';
     await adminBookingPage.navigate()
-    await adminBookingPage.typeName('first');
+    await adminBookingPage.typeName(roomName);
     await adminBookingPage.typePrice('11');
     await adminBookingPage.clickCreateButton();
+
+    const createdRoom = await adminBookingPage.getRoomDetails(roomName)
+    expect(createdRoom.type).toBe('Single');
+    expect(createdRoom.accessible).toBe(false);
+    expect(createdRoom.price).toBe(11);
+    expect(createdRoom.details).toBe('No features added to the room');
   })
 });

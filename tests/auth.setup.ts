@@ -4,6 +4,7 @@ const authFile = '.auth/admin-booking.json';
 
 setup('authenticate', async ({ page }) => {
   await page.goto('/#/admin', { waitUntil: "load"});
+  await page.getByRole("button",{ name: 'Let me hack!'}).click();
   // Best practice is to setup this data as env var and access it trough the operating system - ex. process.env.ADMIN_USER
   // For the sake of the task to work out of the box without additional configuration the credentials are as plain text
   await page.getByTestId('username').fill('admin')
