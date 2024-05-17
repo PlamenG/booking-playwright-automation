@@ -3,7 +3,7 @@ type RoomDetailsUI = {
     wifi: 'wifi' | null,
     tv: 'tv' | null,
     radio: 'radio' | null,
-    refreschments: 'refresments' | null,
+    refreshments: 'refreshments' | null,
     safe: 'safe' | null,
     views: 'views' | null,
 }

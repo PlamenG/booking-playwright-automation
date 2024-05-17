@@ -1,0 +1,1 @@
+type RoomTypeUi = 'Single' | 'Twin' | 'Double' | 'Family' | 'Suite' | null

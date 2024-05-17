@@ -26,6 +26,7 @@ test.describe('HomePage Tests', () => {
   const expectedRooms: RoomUI[] = [
     { name: 'first', type: 'Single', accessible: false, price: 1, details: {none: 'No features added to the room'}},
     { name: 'second', type: 'Double', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi'} },
+    { name: 'third', type: 'Family', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi', radio: 'radio', refreshments: 'refreshments', views: 'views', safe: 'safe'} },
   ]
   for(const expecterRoom of expectedRooms){
     test(`Crerate new room with details ${JSON.stringify(expecterRoom)}`, async ({adminBookingPage}) => {

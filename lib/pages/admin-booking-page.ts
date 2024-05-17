@@ -40,9 +40,9 @@ export default class AdminBookingPage {
     await this.newRoomCreateButton.click();
   }
 
-  async setRoomType(roomType: string){
+  async setRoomType(roomType: RoomTypeUi){
     // As default option is expected to be Single no action is made to select it
-    if(roomType != 'Single'){
+    if(roomType !== 'Single' && roomType !== null){
       await this.newRoomTypeDropdownSelect.click();
       await this.newRoomTypeDropdownSelect.selectOption(roomType);
     }
@@ -63,7 +63,7 @@ export default class AdminBookingPage {
 
   async getRoomProperties(roomName:string){
     const name = await this.roomName(roomName).textContent();
-    const type = await this.roomType(roomName).textContent();
+    let type: RoomTypeUi = (await this.roomType(roomName).textContent()) as RoomTypeUi;
     const accessible:boolean = 'true' === (await this.isRoomAccessible(roomName).textContent());
     const price = Number(await this.roomPrice(roomName).textContent());
     const details = await this.parseRoomDetails(roomName);
@@ -71,7 +71,7 @@ export default class AdminBookingPage {
     const roomDetails:RoomUI = 
     {
       name: name ? name : '',
-      type: type ? type : '',
+      type: type,
       accessible: accessible,
       price: price,
       details: details
@@ -92,7 +92,7 @@ export default class AdminBookingPage {
       if (detail === 'wifi') { parsedDetails.wifi = 'wifi' }
       if (detail === 'tv') { parsedDetails.tv = 'tv' }
       if (detail === 'radio') { parsedDetails.radio = 'radio' }
-      if (detail === 'refreschments') { parsedDetails.refreschments = 'refresments' }
+      if (detail === 'refreshments') { parsedDetails.refreshments = 'refreshments' }
       if (detail === 'safe') { parsedDetails.safe = 'safe' }
       if (detail === 'views') { parsedDetails.views = 'views' }
     })
@@ -110,7 +110,7 @@ export default class AdminBookingPage {
       case 'radio':
         await this.newRoomRadioCheckbox.check();
         break;
-      case 'refreschments':
+      case 'refreshments':
         await this.newRoomRefreshmentsCheckbox.check();
         break;
       case 'safe':
