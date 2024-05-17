@@ -17,23 +17,31 @@ test.describe('HomePage Tests', () => {
     })
     
     const checkRooms = await request.get(roomEnpoint);
-    const roomOnBackend = (await checkRooms.json()).rooms as [Room];
+    const roomOnBackend = (await checkRooms.json()).rooms as Room[];
     expect(checkRooms.ok(), `Status code is: ${await checkRooms.status()}`).toBeTruthy();
-    expect(roomOnBackend.length).toBe(0)
+    expect(roomOnBackend.length, "Existing rooms were not cleaned in beforeEach!").toBe(0)
     await adminBookingPage.navigate();
   });
 
-  test("Crerate new room", async ({adminBookingPage}) => {
-    const roomName = 'first';
-    await adminBookingPage.navigate()
-    await adminBookingPage.typeName(roomName);
-    await adminBookingPage.typePrice('11');
-    await adminBookingPage.clickCreateButton();
-
-    const createdRoom = await adminBookingPage.getRoomDetails(roomName)
-    expect(createdRoom.type).toBe('Single');
-    expect(createdRoom.accessible).toBe(false);
-    expect(createdRoom.price).toBe(11);
-    expect(createdRoom.details).toBe('No features added to the room');
-  })
+  const expectedRooms: RoomUI[] = [
+    { name: 'first', type: 'Single', accessible: false, price: 1, details: 'No features added to the room' },
+    { name: 'second', type: 'Double', accessible: true, price: 999, details: 'No features added to the room' },
+  ]
+  for(const expecterRoom of expectedRooms){
+    test(`Crerate new room with details ${JSON.stringify(expecterRoom)}`, async ({adminBookingPage}) => {
+      await adminBookingPage.navigate()
+      await adminBookingPage.typeName(expecterRoom.name); 
+      await adminBookingPage.setRoomType(expecterRoom.type);
+      await adminBookingPage.setRoomAccessible(expecterRoom.accessible);
+      await adminBookingPage.typePrice(expecterRoom.price.toString());
+      await adminBookingPage.clickCreateButton();
+  
+      const createdRoom = await adminBookingPage.getRoomDetails(expecterRoom.name)
+      expect(createdRoom.name, "Room names is not correct!").toBe(expecterRoom.name);
+      expect(createdRoom.type, "Room type is not correct!").toBe(expecterRoom.type);
+      expect(createdRoom.accessible, "Room accessible is not correct!").toBe(expecterRoom.accessible);
+      expect(createdRoom.price, "Room price is not correct!").toBe(expecterRoom.price);
+      expect(createdRoom.details, "Room detailse are not correct!").toBe(expecterRoom.details);
+    })
+  }
 });

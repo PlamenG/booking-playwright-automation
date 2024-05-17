@@ -6,8 +6,9 @@ export default class AdminBookingPage {
   private readonly newRoomWrapper = this.page.locator('.row.room-form');
   private readonly newRoomnameInput = this.newRoomWrapper.getByTestId('roomName');
   private readonly newRoomTypeDropdownSelect = this.newRoomWrapper.locator('#type')
+  private readonly newRoomAccessibleDropdownSelect = this.newRoomWrapper.locator('#accessible')
   private readonly newRoomPriceInput = this.newRoomWrapper.locator('#roomPrice');
-  private readonly newRoomCreateButton = this.newRoomWrapper.getByRole("button", {name: "Create"})
+  private readonly newRoomCreateButton = this.newRoomWrapper.locator('#createRoom')
   // Existing room locators
   private readonly existingRoomWrapper = (roomName:string) => this.page.getByTestId('roomlisting').filter({has: this.page.locator(`#roomName${roomName}`)});
   private readonly roomName = (roomName:string) => this.page.locator(`#roomName${roomName}`);
@@ -34,9 +35,17 @@ export default class AdminBookingPage {
   }
 
   async setRoomType(roomType: string){
+    // As default option is expected to be Single no action is made to select it
     if(roomType != 'Single'){
       await this.newRoomTypeDropdownSelect.click();
       await this.newRoomTypeDropdownSelect.selectOption(roomType);
+    }
+  }
+
+  async setRoomAccessible(isAccesible:boolean){
+    if(isAccesible === true){
+      await this.newRoomAccessibleDropdownSelect.click();
+      await this.newRoomAccessibleDropdownSelect.selectOption('true');
     }
   }
 
