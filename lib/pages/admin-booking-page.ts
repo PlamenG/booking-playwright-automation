@@ -1,22 +1,17 @@
 import { Page } from 'playwright';
 
-type RoomUI = {
-  type: string | null;
-  accessible: boolean;
-  price: number;
-  details: string | null;
-}
-
 export default class AdminBookingPage {
   constructor(private readonly page: Page) {}
   // New room locators
   private readonly newRoomWrapper = this.page.locator('.row.room-form');
-  private readonly nameInput = this.newRoomWrapper.getByTestId('roomName');
-  private readonly priceInput = this.newRoomWrapper.locator('#roomPrice');
-  private readonly createButton = this.newRoomWrapper.getByRole("button", {name: "Create"})
+  private readonly newRoomnameInput = this.newRoomWrapper.getByTestId('roomName');
+  private readonly newRoomTypeDropdownSelect = this.newRoomWrapper.locator('#type')
+  private readonly newRoomPriceInput = this.newRoomWrapper.locator('#roomPrice');
+  private readonly newRoomCreateButton = this.newRoomWrapper.getByRole("button", {name: "Create"})
   // Existing room locators
   private readonly existingRoomWrapper = (roomName:string) => this.page.getByTestId('roomlisting').filter({has: this.page.locator(`#roomName${roomName}`)});
-  private readonly roomType = (roomName:string) =>  this.existingRoomWrapper(roomName).locator('#typeSingle');
+  private readonly roomName = (roomName:string) => this.page.locator(`#roomName${roomName}`);
+  private readonly roomType = (roomName:string) =>  this.existingRoomWrapper(roomName).locator('p[id*="type"]');
   private readonly isRoomAccessible = (roomName:string) =>  this.existingRoomWrapper(roomName).locator('p[id*="accessible"]');
   private readonly roomPrice = (roomName:string) =>  this.existingRoomWrapper(roomName).locator('p[id*="roomPrice"]');
   private readonly roomDetails = (roomName:string) =>  this.existingRoomWrapper(roomName).locator('p[id*="details"]');
@@ -26,20 +21,27 @@ export default class AdminBookingPage {
     await this.page.goto('/#/admin', { waitUntil: "load"})
   }
 
-  async typeName(name:string){
-    await this.nameInput.fill(name);
+  async typeName(name:string | ''){
+    await this.newRoomnameInput.fill(name);
   }
 
   async typePrice(price: string){
-    await this.priceInput.fill(price);
+    await this.newRoomPriceInput.fill(price);
   }
 
   async clickCreateButton(){
-    await this.createButton.click();
+    await this.newRoomCreateButton.click();
+  }
+
+  async setRoomType(roomType: string){
+    if(roomType != 'Single'){
+      await this.newRoomTypeDropdownSelect.click();
+      await this.newRoomTypeDropdownSelect.selectOption(roomType);
+    }
   }
 
   async getRoomDetails(roomName:string){
-    const room = await this.existingRoomWrapper(roomName).textContent();
+    const name = await this.roomName(roomName).textContent();
     const type = await this.roomType(roomName).textContent();
     const accessible:boolean = 'true' === (await this.isRoomAccessible(roomName).textContent());
     const price = Number(await this.roomPrice(roomName).textContent());
@@ -47,7 +49,8 @@ export default class AdminBookingPage {
     
     const roomDetails:RoomUI = 
     {
-      type: type,
+      name: name ? name : '',
+      type: type ? type : '',
       accessible: accessible,
       price: price,
       details: details

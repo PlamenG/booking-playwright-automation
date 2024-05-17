@@ -9,7 +9,7 @@ export default defineConfig({
   outputDir: 'test-results',
 
   // Run all tests in parallel.
-  fullyParallel: true,
+  fullyParallel: false,
   
   // Single test run tme limit in ms
   timeout: 30*1000,
