@@ -3,5 +3,5 @@ type RoomUI = {
     type: string;
     accessible: boolean;
     price: number;
-    details: string | null;
+    details: Partial<RoomDetailsUI>;
   }
