@@ -1,11 +1,11 @@
 import { test as base } from '@playwright/test';
-import AdminBookingPage from '../../lib/pages/admin-booking-page';
+import RoomAdminPage from '../../lib/pages/room-admin-page';
 
 type PageObjects = {
-  adminBookingPage: AdminBookingPage;
+  roomAdminPage: RoomAdminPage;
 };
 
 export const test = base.extend<PageObjects>({
-  adminBookingPage: async ({ page }, use) => {await use(await new AdminBookingPage(page))},
+  roomAdminPage: async ({ page }, use) => {await use(await new RoomAdminPage(page))},
 })
 export { expect } from '@playwright/test';

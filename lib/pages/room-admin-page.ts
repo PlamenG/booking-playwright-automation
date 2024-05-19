@@ -1,6 +1,6 @@
 import { Page } from 'playwright';
 
-export default class AdminBookingPage {
+export default class RoomAdminPage {
   constructor(private readonly page: Page) {}
   // New room locators
   private readonly newRoomWrapper = this.page.locator('.row.room-form');
@@ -79,16 +79,13 @@ export default class AdminBookingPage {
     return roomDetails;
   }
 
-  private async parseRoomDetails(roomName:string){
-    const idAttribute = (await this.roomDetails(roomName).getAttribute("id"))?.toLowerCase();
-    const actualDetails = idAttribute?.replace('details', '');
-    const details = actualDetails ? actualDetails.split(',') : [];
+  async extractRoomDetails(roomDetails:string[]){
     let parsedDetails: Partial<RoomDetailsUI> = {};
-    if(details.length === 0){
+    if(roomDetails.length === 0){
       parsedDetails.none = "No features added to the room";
       return parsedDetails
     }
-    details.forEach(detail => {
+    roomDetails.forEach(detail => {
       if (detail === 'wifi') { parsedDetails.wifi = 'wifi' }
       if (detail === 'tv') { parsedDetails.tv = 'tv' }
       if (detail === 'radio') { parsedDetails.radio = 'radio' }
@@ -97,6 +94,13 @@ export default class AdminBookingPage {
       if (detail === 'views') { parsedDetails.views = 'views' }
     })
     return parsedDetails;
+  }
+
+  private async parseRoomDetails(roomName:string){
+    const idAttribute = (await this.roomDetails(roomName).getAttribute("id"))?.toLowerCase();
+    const actualDetails = idAttribute?.replace('details', '');
+    const details = actualDetails ? actualDetails.split(',') : [];
+    return this.extractRoomDetails(details);
   }
 
   private async checkDetailOption(option:string){

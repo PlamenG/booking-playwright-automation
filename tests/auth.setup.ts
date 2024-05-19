@@ -2,7 +2,7 @@ import { test as setup, expect } from '@playwright/test';
 
 const authFile = '.auth/admin-booking.json';
 
-setup('authenticate', async ({ page }) => {
+setup('authenticate', async ({ page, request }) => {
   await page.goto('/#/admin', { waitUntil: "load"});
   await page.locator('[data-target="#collapseBanner"] button').click();
   // Best practice is to setup this data as env var and access it trough the operating system - ex. process.env.ADMIN_USER

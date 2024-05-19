@@ -1,49 +1,92 @@
 import { test, expect } from '../hooks/inject-pages';
+import { RoomsApi } from '../../lib/API/room-api';
 
-test.describe('HomePage Tests', () => {
+test.describe('Create room page without any rooms prior', () => {
 
-  test.beforeEach(async ({ adminBookingPage, request }) => {
-    const roomEnpoint = '/room'
-
+  test.beforeEach(async ({request }) => {
     console.log(`Running ${test.info().title}`);
-    
-    const getRooms = await request.get(roomEnpoint)
-    expect(getRooms.ok(), `Status code is: ${await getRooms.status()}`).toBeTruthy();
-    
-    const rooms = (await getRooms.json()).rooms as Room[];
-    rooms.forEach(async (room) => {
-      const deleteRoom = await request.delete(`${roomEnpoint}/${room.roomid}`)      
-      expect(deleteRoom.ok(), `Status code is: ${await deleteRoom.status()}`).toBeTruthy();
-    })
-    
-    const checkRooms = await request.get(roomEnpoint);
-    const roomOnBackend = (await checkRooms.json()).rooms as Room[];
-    expect(checkRooms.ok(), `Status code is: ${await checkRooms.status()}`).toBeTruthy();
-    expect(roomOnBackend.length, "Existing rooms were not cleaned in beforeEach!").toBe(0)
-    await adminBookingPage.navigate();
+    const roomsApi = new RoomsApi(request);
+    await roomsApi.deleteAllExistingRooms();
+    await roomsApi.checkRoomsCount(0);
   });
 
   const expectedRooms: RoomUI[] = [
     { name: 'first', type: 'Single', accessible: false, price: 1, details: {none: 'No features added to the room'}},
     { name: 'second', type: 'Double', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi'} },
-    { name: 'third', type: 'Family', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi', radio: 'radio', refreshments: 'refreshments', views: 'views', safe: 'safe'} },
+    { name: 'third', type: 'Family', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi', radio: 'radio', refreshments: 'refreshments', views: 'views'} },
+    { name: 'third', type: 'Twin', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi', radio: 'radio', refreshments: 'refreshments'} },
+    { name: 'third', type: 'Suite', accessible: true, price: 999, details: {tv: 'tv', wifi: 'wifi', radio: 'radio', refreshments: 'refreshments', views: 'views', safe: 'safe'} },
   ]
   for(const expecterRoom of expectedRooms){
-    test(`Crerate new room with details ${JSON.stringify(expecterRoom)}`, async ({adminBookingPage}) => {
-      await adminBookingPage.navigate()
-      await adminBookingPage.typeName(expecterRoom.name); 
-      await adminBookingPage.setRoomType(expecterRoom.type);
-      await adminBookingPage.setRoomAccessible(expecterRoom.accessible);
-      await adminBookingPage.typePrice(expecterRoom.price.toString());
-      await adminBookingPage.setRoomDetails(expecterRoom.details);
-      await adminBookingPage.clickCreateButton();
-  
-      const createdRoom = await adminBookingPage.getRoomProperties(expecterRoom.name)
+    test(`Crerate new room with details ${JSON.stringify(expecterRoom)}`, async ({roomAdminPage}) => {
+        await roomAdminPage.navigate();
+        await roomAdminPage.typeName(expecterRoom.name);
+        await roomAdminPage.setRoomType(expecterRoom.type);
+        await roomAdminPage.setRoomAccessible(expecterRoom.accessible);
+        await roomAdminPage.typePrice(expecterRoom.price.toString());
+        await roomAdminPage.setRoomDetails(expecterRoom.details);
+        await roomAdminPage.clickCreateButton();
+        const createdRoom = await roomAdminPage.getRoomProperties(expecterRoom.name);
+        expect(createdRoom.name, "Room names is not correct!").toBe(expecterRoom.name);
+        expect(createdRoom.type, "Room type is not correct!").toBe(expecterRoom.type);
+        expect(createdRoom.accessible, "Room accessible is not correct!").toBe(expecterRoom.accessible);
+        expect(createdRoom.price, "Room price is not correct!").toBe(expecterRoom.price);
+        expect(createdRoom.details, "Room detailse are not correct!").toEqual(expecterRoom.details);
+    })
+  }
+});
+
+test.describe('Adding a new room to existing rooms', () => {
+  const roomsToGenerate = 5;
+  let basicSeededRoom: RoomAPI = {
+    accessible: true,
+    features: [ 'Tv', 'Safe'],
+    roomName: 'auto',
+    roomPrice: 111,
+    type: 'Double'
+  }
+  test.beforeEach(async ({request }) => {
+    console.log(`Running ${test.info().title}`);
+    const roomsApi = new RoomsApi(request);
+    await roomsApi.deleteAllExistingRooms();
+    await roomsApi.deleteAllExistingRooms();
+    await roomsApi.createRooms(basicSeededRoom, roomsToGenerate)
+  })
+
+  const expectedRooms: RoomUI[] = [
+    { name: 'first', type: 'Single', accessible: false, price: 1, details: {none: 'No features added to the room'}},
+  ]
+  for(const expecterRoom of expectedRooms){
+    test(`Add room with details ${JSON.stringify(expecterRoom)}`, async ({roomAdminPage}) => {
+      await roomAdminPage.navigate();
+      await roomAdminPage.typeName(expecterRoom.name);
+      await roomAdminPage.setRoomType(expecterRoom.type);
+      await roomAdminPage.setRoomAccessible(expecterRoom.accessible);
+      await roomAdminPage.typePrice(expecterRoom.price.toString());
+      await roomAdminPage.setRoomDetails(expecterRoom.details);
+      await roomAdminPage.clickCreateButton();
+
+      const createdRoom = await roomAdminPage.getRoomProperties(expecterRoom.name);
       expect(createdRoom.name, "Room names is not correct!").toBe(expecterRoom.name);
       expect(createdRoom.type, "Room type is not correct!").toBe(expecterRoom.type);
       expect(createdRoom.accessible, "Room accessible is not correct!").toBe(expecterRoom.accessible);
       expect(createdRoom.price, "Room price is not correct!").toBe(expecterRoom.price);
       expect(createdRoom.details, "Room detailse are not correct!").toEqual(expecterRoom.details);
+
+      for (let index = 1; index <= roomsToGenerate; index++) {
+        const expectedRoomName = `auto${index}`;
+        const existingRoomProperties = await roomAdminPage.getRoomProperties(expectedRoomName);
+        expect(existingRoomProperties.name, "Room names is not correct!").toBe(expectedRoomName);
+        expect(existingRoomProperties.type, "Room type is not correct!").toBe(basicSeededRoom.type as RoomTypeUi);
+        expect(existingRoomProperties.accessible, "Room accessible is not correct!").toBe(basicSeededRoom.accessible);
+        expect(existingRoomProperties.price, "Room price is not correct!").toBe(basicSeededRoom.roomPrice);
+        
+        let createdRoomDetails: string[] = [];
+        basicSeededRoom.features.forEach(feature => createdRoomDetails.push(feature.toLowerCase()));
+        const expectedRoomDetails = await roomAdminPage.extractRoomDetails(createdRoomDetails)
+        expect(existingRoomProperties.details, "Room detailse are not correct!").toEqual(expectedRoomDetails);
+      }
     })
   }
-});
+})
+
