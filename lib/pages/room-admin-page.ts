@@ -1,4 +1,5 @@
 import { Page } from 'playwright';
+import { expect } from 'playwright/test';
 
 export default class RoomAdminPage {
   constructor(private readonly page: Page) {}
@@ -94,6 +95,14 @@ export default class RoomAdminPage {
       if (detail === 'views') { parsedDetails.views = 'views' }
     })
     return parsedDetails;
+  }
+
+  async deleteRoom(name: string){
+    await this.deleteRoomButton(name).click()
+  }
+
+  async expectRoomToBeNotExisting(name:string){
+    expect(await this.existingRoomWrapper(name)).toBeHidden();
   }
 
   private async parseRoomDetails(roomName:string){
