@@ -102,6 +102,7 @@ export default class RoomAdminPage {
   }
 
   async expectRoomToBeNotExisting(name:string){
+    await this.existingRoomWrapper(name).waitFor({state:'hidden', timeout:500})
     expect(await this.existingRoomWrapper(name)).toBeHidden();
   }
 

@@ -10,6 +10,6 @@ setup('authenticate', async ({ page, request }) => {
   await page.getByTestId('username').fill('admin')
   await page.getByTestId('password').fill('password');
   await page.getByTestId('submit').click();
-  await expect(await page.locator('.rowHeader p', {hasText: 'Room details'})).toBeVisible();
+  await expect(await page.locator('button[id="createRoom"]')).toBeVisible();
   await page.context().storageState({ path: authFile });
 });

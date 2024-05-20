@@ -40,7 +40,7 @@ export default defineConfig({
   use: {
     // Base URL to use in actions like `await page.goto('/')`.
     baseURL: 'https://automationintesting.online',
-    actionTimeout: 10*1000,
+    actionTimeout: 5*1000,
     headless: true,
     navigationTimeout: 10*1000,
     // Collect trace when retrying the failed test.
@@ -48,7 +48,7 @@ export default defineConfig({
     screenshot: 'on',
   },
   expect:{
-    timeout: 10*1000
+    timeout: 5*1000
   },
   // Configure projects for major browsers.
   projects: [
